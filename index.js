@@ -51,42 +51,39 @@ function getJSON(path) {
 function scripts(config) {
   var require_config = getJSON(path.join(config.config_file));
   require_config.baseUrl = config.static_path;
-  
+
   var buff = gulp.src(config.src)
     .pipe(
       amd(function(file) {
         require_config.preserveLicenseComments = false;
         require_config.wrap = true;
-        
+
         if (config.amd_clean) {
           require_config.optimize = 'none';
         }
         else {
           require_config.name = config.almond_file;
         }
-        
+
         require_config.include = ['scripts/' + file.relative];
         return require_config;
       })
     );
-    
+
   if (config.amd_clean) {
     buff.pipe(
-      amdclean.gulp({
-        removeAllRequires: true,
-        aggressiveOptimizations: true
-      })
+      amdclean.gulp()
     )
-      
+
     .pipe(
       uglify()
     )
-    
+
     .pipe(
       gulp.dest(config.dest)
     );
   }
-  
+
   else {
     buff.pipe(
       gulp.dest(config.dest)
